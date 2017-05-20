@@ -4,6 +4,7 @@ Advanced Ranks [ranks]
 =======================
 - GitHub: https://github.com/octacian/ranks
 - Download: https://github.com/octacian/ranks/archive/master.zip
+- Forum: https://forum.minetest.net/viewtopic.php?f=9&t=17640
 
 **Warning:** Ranks uses important features currently only available in development builds of Minetest. In order to use Ranks, you'll need to [build](https://forum.minetest.net/viewtopic.php?id=3837) Minetest yourself with [this commit](https://github.com/minetest/minetest/pull/5716) or newer (May 7th, 2016).
 
