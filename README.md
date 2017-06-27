@@ -6,7 +6,7 @@ Advanced Ranks [ranks]
 - Download: https://github.com/octacian/ranks/archive/master.zip
 - Forum: https://forum.minetest.net/viewtopic.php?f=9&t=17640
 
-**Warning:** Ranks uses important features currently only available in development builds of Minetest. In order to use Ranks, you'll need to [build](https://forum.minetest.net/viewtopic.php?id=3837) Minetest yourself with [this commit](https://github.com/minetest/minetest/pull/5716) or newer (May 7th, 2016).
+**Notice:** Your experience with Ranks can be improved by using a development build of Minetest. In order to use Ranks at its full potential, you'll need to [build](https://forum.minetest.net/viewtopic.php?id=3837) Minetest yourself with [this commit](https://github.com/minetest/minetest/commit/bc53c82bcf923d11725e3de8565eb4c7e435cd2b) or newer (June 21st, 2017).
 
 Ranks is an advanced ranks mod geared towards larger servers helps to both distiguish between players and make managing privileges much easier. With several ranks premade and a simplistic API, ranks is a good addition to any server, especially those with many players.
 

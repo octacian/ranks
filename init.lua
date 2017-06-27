@@ -236,6 +236,15 @@ minetest.register_on_chat_message(function(name, message)
 			local def = ranks.get_def(rank)
 			if def.prefix then
 				local colour = def.colour or "#ffffff"
+				if type(colour) == "table" then
+					if minetest.rgba then
+						colour = minetest.rgba(colour.r, colour.g, colour.b, colour.a)
+					else
+						minetest.chat_send_all(def.prefix.." <"..name.."> "..message)
+						return true
+					end
+				end
+
 				minetest.chat_send_all(minetest.colorize(colour, def.prefix)..
 						" <"..name.."> "..message)
 				return true
