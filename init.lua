@@ -9,6 +9,17 @@ local default
 --- API
 ---
 
+-- [local function] Get colour
+local function get_colour(colour)
+	if type(colour) == "table" and minetest.rgba then
+		return minetest.rgba(colour.r, colour.g, colour.b, colour.a)
+	elseif type(colour) == "string" then
+		return colour
+	else
+		return "#ffffff"
+	end
+end
+
 -- [function] Register rank
 function ranks.register(name, def)
 	assert(name ~= "clear", "Invalid name \"clear\" for rank")
@@ -144,18 +155,17 @@ function ranks.update_nametag(player)
 	local rank = ranks.get_rank(player)
 	if rank then
 		local def    = ranks.get_def(rank)
-		local colour = def.colour or "#ffffff"
+		local colour = get_colour(def.colour)
 		local prefix = def.prefix
 
 		if prefix then
-			prefix = prefix.." "
+			prefix = minetest.colorize(colour, prefix).." "
 		else
 			prefix = ""
 		end
 
 		player:set_nametag_attributes({
 			text = prefix..name,
-			color = colour,
 		})
 
 		return true
@@ -235,16 +245,7 @@ minetest.register_on_chat_message(function(name, message)
 		if rank then
 			local def = ranks.get_def(rank)
 			if def.prefix then
-				local colour = def.colour or "#ffffff"
-				if type(colour) == "table" then
-					if minetest.rgba then
-						colour = minetest.rgba(colour.r, colour.g, colour.b, colour.a)
-					else
-						minetest.chat_send_all(def.prefix.." <"..name.."> "..message)
-						return true
-					end
-				end
-
+				local colour = get_colour(def.colour)
 				minetest.chat_send_all(minetest.colorize(colour, def.prefix)..
 						" <"..name.."> "..message)
 				return true
@@ -253,7 +254,7 @@ minetest.register_on_chat_message(function(name, message)
 	end
 end)
 
---[chatcommand] /rank
+-- [chatcommand] /rank
 minetest.register_chatcommand("rank", {
 	description = "Set a player's rank",
 	params = "<player> <new rank> / \"list\" | username, rankname / list ranks",

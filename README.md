@@ -1,4 +1,4 @@
-![Screenshot](.gh-screenshot.png)
+![Screenshot](screenshot.png)
 
 Advanced Ranks [ranks]
 =======================
