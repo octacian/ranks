@@ -248,6 +248,7 @@ minetest.register_on_chat_message(function(name, message)
 				local colour = get_colour(def.colour)
 				minetest.chat_send_all(minetest.colorize(colour, def.prefix)..
 						" <"..name.."> "..message)
+				minetest.log("action", "CHAT: ".."<"..name.."> "..message)
 				return true
 			end
 		end
