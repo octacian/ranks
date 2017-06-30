@@ -12,7 +12,7 @@ Ranks is an advanced ranks mod geared towards larger servers helps to both disti
 
 This mod was made in an effort to solve two problems. One of these is new players getting confused when they see moderators or administrators doing things that normal players cannot, resulting in repeated accusations of hacking. Ranks allows there to be no confusion between what a player should or should not be able to do, as their rank is displayed in both their nametag and as a prefix to chat messages sent by them.
 
-Displaying the rank prefix on a player's nametag can be disabled by setting `ranks.prefix_nametag = false` in `minetest.conf`, while prefixes before chat messages can be disabled with `ranks.prefix_chat = false`.
+Displaying the rank prefix on a player's nametag can be disabled by setting `ranks.prefix_nametag = false` in `minetest.conf`, while prefixes before chat messages can be disabled with `ranks.prefix_chat = false`. Ranks message prefixes are also supported even when used alongside my other chat-related mods, for example, [chat3](https://forum.minetest.net/viewtopic.php?t=17163).
 
 Ranks also attempts to make privilege updates easier by allowing you to assign a set of privileges to each rank allowing a strict set of privileges for that rank, automatically granting missing privileges, and automatically revoking extra privileges (configurable per-rank). This means that when a player is given a rank with privilege definitions, they will automatically inherit the privileges specified. Whenever `/grant`, `/grantme`, or `/revoke` is called on a player, their privileges are updated according to rank and a warning is sent to the player who called the chatcommand if privileges are modified further.
 

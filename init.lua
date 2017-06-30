@@ -2,7 +2,8 @@
 
 ranks = {}
 
-local registered = {}
+local chat3_exists = minetest.get_modpath("chat3")
+local registered   = {}
 local default
 
 ---
@@ -214,6 +215,27 @@ function ranks.remove_rank(player)
 	end
 end
 
+-- [function] Send prefixed message (if enabled)
+function ranks.chat_send(name, message)
+	if minetest.settings:get("ranks.prefix_chat") ~= "false" then
+		local rank = ranks.get_rank(name)
+		if rank then
+			local def = ranks.get_def(rank)
+			if def.prefix then
+				local colour = get_colour(def.colour)
+				local prefix = minetest.colorize(colour, def.prefix)
+				if chat3_exists then
+					chat3.send(name, message, prefix.." ", "ranks")
+				else
+					minetest.chat_send_all(prefix.." <"..name.."> "..message)
+					minetest.log("action", "CHAT: ".."<"..name.."> "..message)
+				end
+				return true
+			end
+		end
+	end
+end
+
 ---
 --- Registrations
 ---
@@ -240,19 +262,7 @@ end)
 
 -- Prefix messages if enabled
 minetest.register_on_chat_message(function(name, message)
-	if minetest.settings:get("ranks.prefix_chat") ~= "false" then
-		local rank = ranks.get_rank(name)
-		if rank then
-			local def = ranks.get_def(rank)
-			if def.prefix then
-				local colour = get_colour(def.colour)
-				minetest.chat_send_all(minetest.colorize(colour, def.prefix)..
-						" <"..name.."> "..message)
-				minetest.log("action", "CHAT: ".."<"..name.."> "..message)
-				return true
-			end
-		end
-	end
+	return ranks.chat_send(name, message)
 end)
 
 -- [chatcommand] /rank
