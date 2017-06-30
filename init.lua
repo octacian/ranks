@@ -210,7 +210,7 @@ function ranks.remove_rank(player)
 		})
 		-- Update privileges
 		local basic_privs =
-			core.string_to_privs(core.settings:get("basic_privs") or "interact,shout")
+			minetest.string_to_privs(minetest.settings:get("basic_privs") or "interact,shout")
 		minetest.set_player_privs(name, basic_privs)
 	end
 end

@@ -16,6 +16,14 @@ Displaying the rank prefix on a player's nametag can be disabled by setting `ran
 
 Ranks also attempts to make privilege updates easier by allowing you to assign a set of privileges to each rank allowing a strict set of privileges for that rank, automatically granting missing privileges, and automatically revoking extra privileges (configurable per-rank). This means that when a player is given a rank with privilege definitions, they will automatically inherit the privileges specified. Whenever `/grant`, `/grantme`, or `/revoke` is called on a player, their privileges are updated according to rank and a warning is sent to the player who called the chatcommand if privileges are modified further.
 
+### Configuration
+All of the features provided by ranks can be configured directly from the advanced settings menu in the ranks subsection of the top-level Mods section. You can also configure ranks directly from `minetest.conf` with the settings listed below.
+
+| Name                 | Type | Default | Description             |
+| -------------------- | ---- | ------- | ----------------------- |
+| ranks.prefix_chat    | bool | true    | Prefix chat messages    |
+| ranks.prefix_nametag | bool | true    | Prefix nametags         |
+
 ### Packaged Ranks
 By default, four ranks are included with the ranks mod, however, they are only for decoration purposes and do not modify any privileges as they should be configured by each server owner.
 
