@@ -77,6 +77,10 @@ function ranks.update_privs(player, trigger)
 		player = minetest.get_player_by_name(player)
 	end
 
+	if not player then
+		return
+	end
+
 	local name = player:get_player_name()
 	local rank = ranks.get_rank(player)
 	if rank then
