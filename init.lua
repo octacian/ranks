@@ -419,10 +419,10 @@ end
 ---
 
 -- Load default ranks
-dofile(minetest.get_modpath("ranks").."/ranks.lua")
-
 local path = minetest.get_worldpath().."/ranks.lua"
 -- Attempt to load per-world ranks
 if io.open(path) then
 	dofile(path)
+else
+	dofile(minetest.get_modpath("ranks").."/ranks.lua")
 end
