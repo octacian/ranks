@@ -6,6 +6,13 @@ local chat3_exists = minetest.get_modpath("chat3")
 local registered   = {}
 local default
 
+-- Load data
+local rank_storage = {}
+local input = io.open(minetest.get_worldpath().."/ranks.txt","r")
+if input then
+	rank_storage = minetest.deserialize(input:read("*all"))
+end
+
 ---
 --- API
 ---
@@ -52,11 +59,7 @@ end
 
 -- [function] Get player rank
 function ranks.get_rank(player)
-	if type(player) == "string" then
-		player = minetest.get_player_by_name(player)
-	end
-
-	local rank = player:get_attribute("ranks:rank")
+	local rank = rank_storage[player]
 	if rank and registered[rank] then
 		return rank
 	end
@@ -82,7 +85,7 @@ function ranks.update_privs(player, trigger)
 	end
 
 	local name = player:get_player_name()
-	local rank = ranks.get_rank(player)
+	local rank = rank_storage[name]
 	if rank then
 		-- [local function] Warn
 		local function warn(msg)
@@ -157,7 +160,7 @@ function ranks.update_nametag(player)
 	end
 
 	local name = player:get_player_name()
-	local rank = ranks.get_rank(player)
+	local rank = rank_storage[name]
 	if rank then
 		local def    = ranks.get_def(rank)
 		local colour = get_colour(def.colour)
@@ -177,19 +180,30 @@ function ranks.update_nametag(player)
 	end
 end
 
--- [function] Set player rank
+-- [function] Set player rank TODO
 function ranks.set_rank(player, rank)
+	local name = player
+
 	if type(player) == "string" then
 		player = minetest.get_player_by_name(player)
 	end
 
 	if registered[rank] then
+
+		rank_storage[name] = rank
+
+		local output = io.open(minetest.get_worldpath().."/ranks.txt","w")
+		output:write(minetest.serialize(rank_storage))
+		io.close(output)
+
 		-- Set attribute
-		player:set_attribute("ranks:rank", rank)
-		-- Update nametag
-		ranks.update_nametag(player)
-		-- Update privileges
-		ranks.update_privs(player)
+		if minetest.get_player_by_name(name) then
+			player:set_attribute("ranks:rank", rank)
+			-- Update nametag
+			ranks.update_nametag(player)
+			-- Update privileges
+			ranks.update_privs(player)
+		end
 
 		return true
 	end
@@ -197,32 +211,41 @@ end
 
 -- [function] Remove rank from player
 function ranks.remove_rank(player)
+	local name = player
+
 	if type(player) == "string" then
 		player = minetest.get_player_by_name(player)
 	end
 
-	local rank = ranks.get_rank(player)
+	local rank = rank_storage[pname]
 	if rank then
-		local name = player:get_player_name()
+		rank_storage[pname] = nil
 
-		-- Clear attribute
-		player:set_attribute("ranks:rank", nil)
-		-- Update nametag
-		player:set_nametag_attributes({
-			text = name,
-			color = "#ffffff",
-		})
-		-- Update privileges
-		local basic_privs =
-			minetest.string_to_privs(minetest.settings:get("basic_privs") or "interact,shout")
-		minetest.set_player_privs(name, basic_privs)
+		if minetest.get_player_by_name(name) then
+			-- Clear attribute
+			player:set_attribute("ranks:rank", nil)
+			-- Update nametag
+			player:set_nametag_attributes({
+				text = name,
+				color = "#ffffff",
+			})
+			-- Update privileges
+			local basic_privs =
+				minetest.string_to_privs(minetest.settings:get("basic_privs") or "interact,shout")
+			minetest.set_player_privs(name, basic_privs)
+		end
+
+		local output = io.open(minetest.get_worldpath().."/ranks.txt","w")
+		output:write(minetest.serialize(rank_storage))
+		io.close(output)
+
 	end
 end
 
 -- [function] Send prefixed message (if enabled)
 function ranks.chat_send(name, message)
 	if minetest.settings:get("ranks.prefix_chat") ~= "false" then
-		local rank = ranks.get_rank(name)
+		local rank = rank_storage[name]
 		if rank then
 			local def = ranks.get_def(rank)
 			if def.prefix then
@@ -252,7 +275,7 @@ minetest.register_privilege("rank", {
 
 -- Assign/update rank on join player
 minetest.register_on_joinplayer(function(player)
-	if ranks.get_rank(player) then
+	if rank_storage[player:get_player_name()] then
 		-- Update nametag
 		ranks.update_nametag(player)
 		-- Update privileges
@@ -283,7 +306,7 @@ minetest.register_chatcommand("rank", {
 		if #param == 1 and param[1] == "list" then
 			return true, "Available Ranks: "..ranks.list_plaintext()
 		elseif #param == 2 then
-			if minetest.get_player_by_name(param[1]) then
+			if minetest.get_player_by_name(param[1]) or ranks.get_rank(param[1]) then
 				if ranks.get_def(param[2]) then
 					if ranks.set_rank(param[1], param[2]) then
 						if name ~= param[1] then
@@ -315,15 +338,19 @@ minetest.register_chatcommand("getrank", {
 	params = "<name> | name of player",
 	func = function(name, param)
 		if param and param ~= "" then
-			if minetest.get_player_by_name(param) then
-				local rank = ranks.get_rank(param) or "No rank"
+			if rank_storage[param] then
+				local rank = rank_storage[param]:gsub("^%l", string.upper)
 				return true, "Rank of "..param..": "..rank
 			else
-				return false, "Invalid player \""..name.."\""
+				return false, "Rank of "..param..": No rank"
 			end
 		else
-			local rank = ranks.get_rank(name) or "No rank"
-			return false, "Your rank: "..rank
+			if rank_storage[name] then
+				local rank = rank_storage[name]:gsub("^%l", string.upper) or "No rank"
+				return false, "Your rank: "..rank
+			else
+				return false, "Your rank: No rank"
+			end
 		end
 	end,
 })
