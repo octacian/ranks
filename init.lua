@@ -7,7 +7,6 @@ local registered   = {}
 local default
 
 -- Load mod storage
-
 local storage = minetest.get_mod_storage()
 
 ---
@@ -55,10 +54,13 @@ function ranks.list_plaintext()
 end
 
 -- [function] Get player rank
-function ranks.get_rank(player)
-	local rank = storage:get_string(player)
-	if rank ~= "" and registered[rank] then
-		return rank
+function ranks.get_rank(name)
+	if type(name) == "string" then
+		local rank = storage:get_string(name)
+
+		if rank ~= "" and registered[rank] then
+			return rank
+		end
 	end
 end
 
@@ -72,18 +74,17 @@ function ranks.get_def(rank)
 end
 
 -- [function] Update player privileges
-function ranks.update_privs(player, trigger)
-	if type(player) == "string" then
-		player = minetest.get_player_by_name(player)
+function ranks.update_privs(name, trigger)
+	if type(name) == "string" then
+		player = minetest.get_player_by_name(name)
 	end
 
 	if not player then
 		return
 	end
 
-	local name = player:get_player_name()
-	local rank = storage:get_string(name)
-	if rank ~= "" then
+	local rank = ranks.get_rank(name)
+	if ranks.get_rank(name) ~= nil then
 		-- [local function] Warn
 		local function warn(msg)
 			if msg and trigger and minetest.get_player_by_name(trigger) then
@@ -132,10 +133,9 @@ function ranks.update_privs(player, trigger)
 			end
 		end
 
-		local admin = player:get_player_name() == minetest.settings:get("name")
+		local admin = name == minetest.settings:get("name")
 		-- If owner, grant `rank` privilege
 		if admin then
-			local name = player:get_player_name()
 			local privs = minetest.get_player_privs(name)
 			privs["rank"] = true
 			minetest.set_player_privs(name, privs)
@@ -147,18 +147,17 @@ function ranks.update_privs(player, trigger)
 end
 
 -- [function] Update player nametag
-function ranks.update_nametag(player)
+function ranks.update_nametag(name)
 	if minetest.settings:get("ranks.prefix_nametag") == "false" then
 		return
 	end
 
-	if type(player) == "string" then
-		player = minetest.get_player_by_name(player)
+	if type(name) == "string" then
+		player = minetest.get_player_by_name(name)
 	end
 
-	local name = player:get_player_name()
-	local rank = storage:get_string(name)
-	if rank ~= "" then
+	local rank = ranks.get_rank(name)
+	if ranks.get_rank(name) ~= nil then
 		local def    = ranks.get_def(rank)
 		local colour = get_colour(def.colour)
 		local prefix = def.prefix
@@ -178,20 +177,16 @@ function ranks.update_nametag(player)
 end
 
 -- [function] Set player rank TODO
-function ranks.set_rank(player, rank)
-	local name = player
-
-	if type(player) == "string" then
-		player = minetest.get_player_by_name(player)
+function ranks.set_rank(name, rank)
+	if type(name) == "string" then
+		player = minetest.get_player_by_name(name)
 	end
 
 	if registered[rank] then
-
 		storage:set_string(name, rank)
 
 		-- Set attribute
 		if minetest.get_player_by_name(name) then
-			player:set_attribute("ranks:rank", rank)
 			-- Update nametag
 			ranks.update_nametag(player)
 			-- Update privileges
@@ -203,20 +198,16 @@ function ranks.set_rank(player, rank)
 end
 
 -- [function] Remove rank from player
-function ranks.remove_rank(player)
-	local name = player
-
-	if type(player) == "string" then
-		player = minetest.get_player_by_name(player)
+function ranks.remove_rank(name)
+	if type(name) == "string" then
+		name = minetest.get_player_by_name(name)
 	end
 
-	local rank = storage:get_string(name)
-	if rank ~= "" then
+	local rank = ranks.get_rank(name)
+	if rank.get_rank(name) ~= nil then
 		storage:set_string(name, nil)
 
 		if minetest.get_player_by_name(name) then
-			-- Clear attribute
-			player:set_attribute("ranks:rank", nil)
 			-- Update nametag
 			player:set_nametag_attributes({
 				text = name,
@@ -233,8 +224,8 @@ end
 -- [function] Send prefixed message (if enabled)
 function ranks.chat_send(name, message)
 	if minetest.settings:get("ranks.prefix_chat") ~= "false" then
-		local rank = storage:get_string(name)
-		if rank ~= "" then
+		local rank = ranks.get_rank(name)
+		if rank.get_rank(name) ~= nil then
 			local def = ranks.get_def(rank)
 			if def.prefix then
 				local colour = get_colour(def.colour)
@@ -263,14 +254,16 @@ minetest.register_privilege("rank", {
 
 -- Assign/update rank on join player
 minetest.register_on_joinplayer(function(player)
-	if storage:get_string(player:get_player_name()) then
+	local name = player:get_player_name()
+
+	if ranks.get_rank(name) then
 		-- Update nametag
-		ranks.update_nametag(player)
+		ranks.update_nametag(name)
 		-- Update privileges
-		ranks.update_privs(player)
+		ranks.update_privs(name)
 	else
 		if ranks.default then
-			ranks.set_rank(player, ranks.default)
+			ranks.set_rank(name, ranks.default)
 		end
 	end
 end)
