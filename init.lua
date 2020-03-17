@@ -55,12 +55,13 @@ end
 
 -- [function] Get player rank
 function ranks.get_rank(name)
-	if type(name) == "string" then
-		local rank = storage:get_string(name)
-
-		if rank ~= "" and registered[rank] then
-			return rank
-		end
+	if type(name) ~= "string" then
+		name = name:get_player_name()
+	end
+	
+	local rank = storage:get_string(name)
+	if rank ~= "" and registered[rank] then
+		return rank
 	end
 end
 
@@ -84,7 +85,7 @@ function ranks.update_privs(name, trigger)
 	end
 
 	local rank = ranks.get_rank(name)
-	if ranks.get_rank(name) ~= nil then
+	if rank ~= nil then
 		-- [local function] Warn
 		local function warn(msg)
 			if msg and trigger and minetest.get_player_by_name(trigger) then
@@ -157,7 +158,7 @@ function ranks.update_nametag(name)
 	end
 
 	local rank = ranks.get_rank(name)
-	if ranks.get_rank(name) ~= nil then
+	if rank ~= nil then
 		local def    = ranks.get_def(rank)
 		local colour = get_colour(def.colour)
 		local prefix = def.prefix
@@ -168,9 +169,11 @@ function ranks.update_nametag(name)
 			prefix = ""
 		end
 
-		player:set_nametag_attributes({
-			text = prefix..name,
-		})
+		if player then
+			player:set_nametag_attributes({
+				text = prefix..name,
+			})
+		end
 
 		return true
 	end
@@ -185,13 +188,10 @@ function ranks.set_rank(name, rank)
 	if registered[rank] then
 		storage:set_string(name, rank)
 
-		-- Set attribute
-		if minetest.get_player_by_name(name) then
-			-- Update nametag
-			ranks.update_nametag(player)
-			-- Update privileges
-			ranks.update_privs(player)
-		end
+		-- Update nametag
+		ranks.update_nametag(name)
+		-- Update privileges
+		ranks.update_privs(name)
 
 		return true
 	end
@@ -204,7 +204,7 @@ function ranks.remove_rank(name)
 	end
 
 	local rank = ranks.get_rank(name)
-	if rank.get_rank(name) ~= nil then
+	if rank ~= nil then
 		storage:set_string(name, nil)
 
 		if minetest.get_player_by_name(name) then
@@ -225,7 +225,7 @@ end
 function ranks.chat_send(name, message)
 	if minetest.settings:get("ranks.prefix_chat") ~= "false" then
 		local rank = ranks.get_rank(name)
-		if rank.get_rank(name) ~= nil then
+		if rank ~= nil then
 			local def = ranks.get_def(rank)
 			if def.prefix then
 				local colour = get_colour(def.colour)
