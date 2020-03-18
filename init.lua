@@ -319,19 +319,17 @@ minetest.register_chatcommand("getrank", {
 	params = "<name> | name of player",
 	func = function(name, param)
 		if param and param ~= "" then
-			if storage:get_string(param) then
-				local rank = storage:get_string(param):gsub("^%l", string.upper)
-				return true, "Rank of "..param..": "..rank
+			local rank = ranks.get_rank(param)
+			if rank then
+				return true, "Rank of " .. param .. ": " .. rank:gsub("^%l", string.upper)
+			elseif minetest.get_player_by_name(param) then
+				return false, "Rank of " .. param .. ": No rank"
 			else
-				return false, "Rank of "..param..": No rank"
+				return false, "Player doesn't exist"
 			end
 		else
-			if storage:get_string(name) then
-				local rank = storage:get_string(name):gsub("^%l", string.upper) or "No rank"
-				return false, "Your rank: "..rank
-			else
-				return false, "Your rank: No rank"
-			end
+			local rank = ranks.get_rank(name) or "No rank"
+			return true, "Your rank: " .. rank:gsub("^%l", string.upper)
 		end
 	end,
 })
