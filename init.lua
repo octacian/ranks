@@ -76,12 +76,8 @@ end
 
 -- [function] Update player privileges
 function ranks.update_privs(name, trigger)
-	if type(name) == "string" then
-		player = minetest.get_player_by_name(name)
-	end
-
-	if not player then
-		return
+	if type(name) ~= "string" then
+    	name = name:get_player_name()
 	end
 
 	local rank = ranks.get_rank(name)
@@ -179,10 +175,10 @@ function ranks.update_nametag(name)
 	end
 end
 
--- [function] Set player rank TODO
+-- [function] Set player rank
 function ranks.set_rank(name, rank)
-	if type(name) == "string" then
-		player = minetest.get_player_by_name(name)
+	if type(name) ~= "string" then
+    	name = name:get_player_name()
 	end
 
 	if registered[rank] then
@@ -200,14 +196,14 @@ end
 -- [function] Remove rank from player
 function ranks.remove_rank(name)
 	if type(name) == "string" then
-		name = minetest.get_player_by_name(name)
+		player = minetest.get_player_by_name(name)
 	end
 
 	local rank = ranks.get_rank(name)
 	if rank ~= nil then
 		storage:set_string(name, nil)
 
-		if minetest.get_player_by_name(name) then
+		if player then
 			-- Update nametag
 			player:set_nametag_attributes({
 				text = name,
@@ -287,7 +283,7 @@ minetest.register_chatcommand("rank", {
 		if #param == 1 and param[1] == "list" then
 			return true, "Available Ranks: "..ranks.list_plaintext()
 		elseif #param == 2 then
-			if minetest.get_player_by_name(param[1]) or ranks.get_rank(param[1]) then
+			if ranks.get_rank(param[1]) then
 				if ranks.get_def(param[2]) then
 					if ranks.set_rank(param[1], param[2]) then
 						if name ~= param[1] then
