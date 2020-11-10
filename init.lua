@@ -56,9 +56,9 @@ end
 -- [function] Get player rank
 function ranks.get_rank(name)
 	if type(name) ~= "string" then
-		name = name:get_player_name()
+		name = minetest.get_player_by_name(name)
 	end
-	
+
 	local rank = storage:get_string(name)
 	if rank ~= "" and registered[rank] then
 		return rank
@@ -149,7 +149,9 @@ function ranks.update_nametag(name)
 		return
 	end
 
-	if type(name) == "string" then
+	if type(name) ~= "string" then
+		player = name:get_player_name()
+	else
 		player = minetest.get_player_by_name(name)
 	end
 
@@ -195,7 +197,9 @@ end
 
 -- [function] Remove rank from player
 function ranks.remove_rank(name)
-	if type(name) == "string" then
+	if type(name) ~= "string" then
+		player = name:get_player_name()
+	else
 		player = minetest.get_player_by_name(name)
 	end
 
@@ -283,25 +287,21 @@ minetest.register_chatcommand("rank", {
 		if #param == 1 and param[1] == "list" then
 			return true, "Available Ranks: "..ranks.list_plaintext()
 		elseif #param == 2 then
-			if ranks.get_rank(param[1]) then
-				if ranks.get_def(param[2]) then
-					if ranks.set_rank(param[1], param[2]) then
-						if name ~= param[1] then
-							minetest.chat_send_player(param[1], name.." set your rank to "..param[2])
-						end
-
-						return true, "Set "..param[1].."'s rank to "..param[2]
-					else
-						return false, "Unknown error while setting "..param[1].."'s rank to "..param[2]
+			if ranks.get_def(param[2]) then
+				if ranks.set_rank(param[1], param[2]) then
+					if name ~= param[1] then
+						minetest.chat_send_player(param[1], name.." set your rank to "..param[2])
 					end
-				elseif param[2] == "clear" then
-					ranks.remove_rank(param[1])
-					return true, "Removed rank from "..param[1]
+
+					return true, "Set "..param[1].."'s rank to "..param[2]
 				else
-					return false, "Invalid rank (see /rank list)"
+					return false, "Unknown error while setting "..param[1].."'s rank to "..param[2]
 				end
+			elseif param[2] == "clear" then
+				ranks.remove_rank(param[1])
+				return true, "Removed rank from "..param[1]
 			else
-				return false, "Invalid player \""..param[1].."\""
+				return false, "Invalid rank (see /rank list)"
 			end
 		else
 			return false, "Invalid usage (see /help rank)"
