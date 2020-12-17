@@ -180,7 +180,7 @@ end
 -- [function] Set player rank
 function ranks.set_rank(name, rank)
 	if type(name) ~= "string" then
-    	name = name:get_player_name()
+		name = name:get_player_name()
 	end
 
 	if registered[rank] then
@@ -208,6 +208,12 @@ function ranks.remove_rank(name)
 		storage:set_string(name, nil)
 
 		if player then
+
+			-- Remove old rank storage if exists
+			if player:get_attribute("ranks:rank") ~= "" then
+				player:set_attribute("ranks:rank", nil)
+			end
+
 			-- Update nametag
 			player:set_nametag_attributes({
 				text = name,
@@ -255,6 +261,11 @@ minetest.register_privilege("rank", {
 -- Assign/update rank on join player
 minetest.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
+
+	-- If database item exists and new storage item does not, use database item
+	if player:get_attribute("ranks:rank") ~= "" and storage:get_string(name, rank) == "" then
+		storage:set_string(name, player:get_attribute("ranks:rank"))
+	end
 
 	if ranks.get_rank(name) then
 		-- Update nametag
