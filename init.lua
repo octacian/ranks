@@ -183,7 +183,7 @@ function ranks.set_rank(name, rank)
 		name = name:get_player_name()
 	end
 
-	if registered[rank] then
+	if registered[rank] and minetest.player_exists(name) then
 		storage:set_string(name, rank)
 
 		-- Update nametag
@@ -208,12 +208,6 @@ function ranks.remove_rank(name)
 		storage:set_string(name, nil)
 
 		if player then
-
-			-- Remove old rank storage if exists
-			if player:get_attribute("ranks:rank") ~= "" then
-				player:set_attribute("ranks:rank", nil)
-			end
-
 			-- Update nametag
 			player:set_nametag_attributes({
 				text = name,
@@ -263,8 +257,19 @@ minetest.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
 
 	-- If database item exists and new storage item does not, use database item
-	if player:get_attribute("ranks:rank") ~= "" and storage:get_string(name, rank) == "" then
+	if player:get_attribute("ranks:rank") ~= nil and storage:get_string(name, rank) == "" then
+		-- Add entry into new storage system
 		storage:set_string(name, player:get_attribute("ranks:rank"))
+
+		-- Store backup then invalidate database item
+		player:set_attribute("ranks:rank-old", player:get_attribute("ranks:rank"))
+		player:set_attribute("ranks:rank", nil)
+	end
+
+	-- Both items exist, remove old one
+	if player:get_attribute("ranks:rank") ~= nil and storage:get_string(name, rank) ~= "" then
+		player:set_attribute("ranks:rank-old", player:get_attribute("ranks:rank"))
+		player:set_attribute("ranks:rank", nil)
 	end
 
 	if ranks.get_rank(name) then
@@ -298,6 +303,10 @@ minetest.register_chatcommand("rank", {
 		if #param == 1 and param[1] == "list" then
 			return true, "Available Ranks: "..ranks.list_plaintext()
 		elseif #param == 2 then
+			if minetest.player_exists(param[1]) == false then
+					return false, "Player does not exist"
+			end
+
 			if ranks.get_def(param[2]) then
 				if ranks.set_rank(param[1], param[2]) then
 					if name ~= param[1] then
@@ -329,10 +338,10 @@ minetest.register_chatcommand("getrank", {
 			local rank = ranks.get_rank(param)
 			if rank then
 				return true, "Rank of " .. param .. ": " .. rank:gsub("^%l", string.upper)
-			elseif minetest.get_player_by_name(param) then
+			elseif minetest.player_exists(param) then
 				return false, "Rank of " .. param .. ": No rank"
 			else
-				return false, "Player doesn't exist"
+				return false, "Player does not exist"
 			end
 		else
 			local rank = ranks.get_rank(name) or "No rank"
