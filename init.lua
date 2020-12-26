@@ -150,7 +150,7 @@ function ranks.update_nametag(name)
 	end
 
 	if type(name) ~= "string" then
-		player = name:get_player_name()
+		name = name:get_player_name()
 	else
 		player = minetest.get_player_by_name(name)
 	end
@@ -167,6 +167,7 @@ function ranks.update_nametag(name)
 			prefix = ""
 		end
 
+		local player = minetest.get_player_by_name(name)
 		if player then
 			player:set_nametag_attributes({
 				text = prefix..name,
@@ -198,7 +199,7 @@ end
 -- [function] Remove rank from player
 function ranks.remove_rank(name)
 	if type(name) ~= "string" then
-		player = name:get_player_name()
+		name = name:get_player_name()
 	else
 		player = minetest.get_player_by_name(name)
 	end
@@ -207,6 +208,7 @@ function ranks.remove_rank(name)
 	if rank ~= nil then
 		storage:set_string(name, nil)
 
+		local player = minetest.get_player_by_name(name)
 		if player then
 			-- Update nametag
 			player:set_nametag_attributes({
