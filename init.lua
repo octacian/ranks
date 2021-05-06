@@ -55,8 +55,8 @@ function ranks.get_rank(player)
 	if type(player) == "string" then
 		player = minetest.get_player_by_name(player)
 	end
-
-	local rank = player:get_attribute("ranks:rank")
+	local meta = player:get_meta()
+	local rank = minetest.deserialize(meta:get_string("ranks:rank"))
 	if rank and registered[rank] then
 		return rank
 	end
@@ -185,7 +185,8 @@ function ranks.set_rank(player, rank)
 
 	if registered[rank] then
 		-- Set attribute
-		player:set_attribute("ranks:rank", rank)
+		local meta = player:get_meta()
+		meta:set_string("ranks:rank", minetest.serialize(rank))
 		-- Update nametag
 		ranks.update_nametag(player)
 		-- Update privileges
@@ -206,7 +207,8 @@ function ranks.remove_rank(player)
 		local name = player:get_player_name()
 
 		-- Clear attribute
-		player:set_attribute("ranks:rank", nil)
+		local meta = player:get_meta()
+		meta:set_string("ranks:rank", nil)
 		-- Update nametag
 		player:set_nametag_attributes({
 			text = name,
