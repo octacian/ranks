@@ -82,7 +82,7 @@ ranks.register("builder",{
 	},
 })
 ranks.register("helper",{
-	prefix = "[Helper]",
+	prefix = "[H]",
 	colour = {a = 255, r = 255, g = 132, b = 0},
 	grant_missing = true,
 	privs = {
