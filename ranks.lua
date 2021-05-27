@@ -1,13 +1,13 @@
 -- ranks/ranks.lua
 
 ranks.register("admin", {
-	prefix = "[Admin]",
+	prefix = "[A]",
 	colour = {a = 255, r = 230, g = 33, b = 23},
 	
 })
 
 ranks.register("moderator", {
-	prefix = "[Moderator]",
+	prefix = "[M]",
 	colour = {a = 255, r = 51, g = 204, b = 51},
 	grant_missing = true,
 	privs = {
@@ -39,7 +39,7 @@ ranks.register("moderator", {
 })
 
 ranks.register("guardian", {
-	prefix = "[Guardian]",
+	prefix = "[G]",
 	colour = {a = 255, r = 0, g = 102, b = 255},
 	grant_missing = true,
 	privs = {
@@ -59,7 +59,7 @@ ranks.register("guardian", {
 })
 
 ranks.register("builder",{
-	prefix = "[Builder]",
+	prefix = "[B]",
 	colour = {a = 255, r = 255, g = 0, b = 255},
 	grant_missing = true,
 	privs = {
@@ -75,8 +75,6 @@ ranks.register("builder",{
 		creative = true,
 		kick = true,
 		settime = true,
-		travelnet_attach = true,
-		travelnet_remove = true,
 		areas = true,
 		spill = true,
 		areas_high_limit = true,
@@ -89,6 +87,7 @@ ranks.register("helper",{
 	grant_missing = true,
 	privs = {
 		interact = true,
+		areas = true,
 		home = true,
 		shout = true,
 		fast = true,
@@ -98,7 +97,7 @@ ranks.register("helper",{
 	},
 })
 ranks.register("youtube", {
-	prefix = "[YouTube]",
+	prefix = "[YT]",
 	colour = {a = 255, r = 255, g = 80, b = 71},
 	grant_missing = true,
 	revoke_extra = true,
