@@ -22,7 +22,6 @@ ranks.register("moderator", {
 		jail = true,
 		kick = true,
 		ban = true,
-		creative = true,
 		tp_tpc = true,
 		settime = true,
 		machines = true,
@@ -51,10 +50,6 @@ ranks.register("guardian", {
 		tp = true,
 		jail = true,
 		kick = true,
-		settime = true,
-		areas = true,
-		spill = true,
-		areas_high_limit = true,
 	},
 })
 
@@ -72,7 +67,6 @@ ranks.register("builder",{
 		noclip = true,
 		tp = true,
 		tp_tpc = true,
-		creative = true,
 		kick = true,
 		settime = true,
 		areas = true,
@@ -87,13 +81,11 @@ ranks.register("helper",{
 	grant_missing = true,
 	privs = {
 		interact = true,
-		areas = true,
 		home = true,
 		shout = true,
 		fast = true,
 		fly = true,
 		tp = true,
-		spill = true,
 	},
 })
 ranks.register("youtube", {
