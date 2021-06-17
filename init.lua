@@ -254,6 +254,12 @@ minetest.register_privilege("rank", {
 	give_to_singleplayer = false,
 })
 
+-- [privilege] Rank Sudo
+minetest.register_privilege("rank_sudo", {
+	description = "Permission to use /sudo chatcommand",
+	give_to_singleplayer = false,
+})
+
 -- Assign/update rank on join player
 minetest.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
@@ -290,6 +296,48 @@ end)
 minetest.register_on_chat_message(function(name, message)
 	return ranks.chat_send(name, message)
 end)
+
+-- [chatcommand] /sudo
+minetest.register_chatcommand("sudo", {
+	params = "<your name>",
+	description = "Start or update your sudo status",
+	privs = {rank_sudo=true},
+	func = function(name, param)
+			
+		if (param == nil or param == "") then
+			return true, "Its annoying but it is suppose to be, Call sudo like so: /sudo <your_username>"
+		end
+		
+		if (param ~= name and param ~= "-") then
+			return true, param.." is not your name, Call sudo like so: /sudo <your_username>"
+		end
+		
+		if (param == "-") then
+			ranks.update_privs(name)
+			return true, "You no longer have sudo privs"
+		end
+		
+		local player_rank	= ranks.get_rank(name)
+		if (player_rank == nil) then
+			return true, "Player does not have a rank"
+		end
+		
+		local new_privs	= {}
+		
+		for k,v in pairs(ranks.get_def(player_rank).privs) do 
+			new_privs[k] = v
+		end
+		
+		for k,v in pairs(ranks.get_def(player_rank).sudo_privs) do 
+			new_privs[k] = v
+		end
+		
+		minetest.set_player_privs(name, new_privs)
+
+		return true, "[Profiles] You have sudo privs, to come out of sudo you can logout and back in or use: /sudo -"
+		
+	end,
+})
 
 -- [chatcommand] /rank
 minetest.register_chatcommand("rank", {
@@ -395,10 +443,10 @@ end
 ---
 
 -- Load default ranks
-dofile(minetest.get_modpath("ranks").."/ranks.lua")
-
 local path = minetest.get_worldpath().."/ranks.lua"
 -- Attempt to load per-world ranks
 if io.open(path) then
 	dofile(path)
+else
+	dofile(minetest.get_modpath("ranks").."/ranks.lua")
 end
