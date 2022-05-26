@@ -3,6 +3,7 @@
 ranks = {}
 
 local chat3_exists = minetest.get_modpath("chat3")
+local irc_exists = minetest.get_modpath("irc")
 local registered   = {}
 local default
 
@@ -235,6 +236,20 @@ function ranks.chat_send(name, message)
 				if chat3_exists then
 					chat3.send(name, message, prefix.." ", "ranks")
 				else
+					if irc_exists then
+						if not irc.connected
+					           or message:sub(1, 1) == "/"
+					           or message:sub(1, 5) == "[off]"
+					           or not irc.joined_players[name]
+					           or (not minetest.check_player_privs(name, {shout=true})) then
+					                return
+					        end
+					        local nl = message:find("\n", 1, true)
+					        if nl then
+					                message = message:sub(1, nl - 1)
+					        end
+					        irc.say(irc.playerMessage(name, minetest.strip_colors(message)))
+					end
 					minetest.chat_send_all(prefix.." <"..name.."> "..message)
 					minetest.log("action", "CHAT: ".."<"..name.."> "..message)
 				end
